@@ -382,7 +382,6 @@
       <div class="form-group"><label>Description</label><textarea id="project-description" rows="3" required>${project.description || ''}</textarea></div>
       <div class="form-group"><label>Tech Stack (comma-separated)</label><input type="text" id="project-techstack" value="${(Array.isArray(project.techStack) ? project.techStack : []).join(', ')}" required></div>
       <div class="form-group"><label>Date</label><input type="month" id="project-date" value="${project.date || ''}" required></div>
-      <div class="form-group"><label>Project Image (leave empty to keep current)</label><input type="file" id="project-image" accept="image/*"></div>
       <button type="submit" class="btn-primary" onclick="window.saveProject('${id}')">Update Project</button>
     `);
   };
@@ -394,10 +393,6 @@
       formData.append('description', document.getElementById('project-description').value);
       formData.append('techStack', JSON.stringify(document.getElementById('project-techstack').value.split(',').map(t => t.trim()).filter(Boolean)));
       formData.append('date', document.getElementById('project-date').value);
-      const imageInput = document.getElementById('project-image');
-      if (imageInput && imageInput.files && imageInput.files[0]) {
-        formData.append('image', imageInput.files[0]);
-      }
       const url = id ? `/api/projects/${id}` : '/api/projects';
       const method = id ? 'PUT' : 'POST';
       const response = await apiFetch(url, { method, body: formData });
@@ -534,14 +529,14 @@
       const url = id ? `/api/blogs/${id}` : '/api/blogs';
       const method = id ? 'PUT' : 'POST';
       const response = await apiFetch(url, { method, body: formData });
-      const data = await readJsonSafe(response);
-      if (data && data.success) {
+      const data = await response.json();
+      if (data.success) {
         showNotification(`Blog ${id ? 'updated' : 'added'} — saved.`, 'success');
         closeModal();
         loadBlogs();
         loadDashboardStats();
       } else {
-        showNotification(getApiErrorMessage(response, data, 'Couldn\'t save that blog post. Please try again.'), 'error');
+        showNotification(data.error || 'Couldn\'t save that blog post. Please try again.', 'error');
       }
     } catch (e) {
       showNotification('Couldn\'t reach the server. Please try again.', 'error');
@@ -552,13 +547,13 @@
     if (!confirm('Delete this blog post? This can\'t be undone.')) return;
     try {
       const response = await apiFetch(`/api/blogs/${id}`, { method: 'DELETE' });
-      const data = await readJsonSafe(response);
-      if (data && data.success) {
+      const data = await response.json();
+      if (data.success) {
         showNotification('Blog post deleted.', 'success');
         loadBlogs();
         loadDashboardStats();
       } else {
-        showNotification(getApiErrorMessage(response, data, 'Couldn\'t delete that blog post. Please try again.'), 'error');
+        showNotification(data.error || 'Couldn\'t delete that blog post. Please try again.', 'error');
       }
     } catch (e) {
       showNotification('Couldn\'t reach the server. Please try again.', 'error');
@@ -736,7 +731,6 @@
           <div class="form-group"><label>Description</label><textarea id="project-description" rows="3" required></textarea></div>
           <div class="form-group"><label>Tech Stack (comma-separated)</label><input type="text" id="project-techstack" required></div>
           <div class="form-group"><label>Date</label><input type="month" id="project-date" required></div>
-          <div class="form-group"><label>Project Image</label><input type="file" id="project-image" accept="image/*"></div>
           <button type="submit" class="btn-primary" onclick="window.saveProject()">Add Project</button>
         `);
       });
