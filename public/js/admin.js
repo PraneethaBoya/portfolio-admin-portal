@@ -13,8 +13,10 @@
       ...options
     });
     if (response.status === 401) {
-      window.location.href = 'login.html';
-      throw new Error('Unauthorized');
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 600);
+      return response;
     }
     return response;
   }
