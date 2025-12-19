@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Portfolio CMS</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Portfolio CMS</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <span>📊</span> Home Base
+                </a>
+                <a href="#profile" class="nav-item" data-section="profile">
+                    <span>👤</span> Profile
+                </a>
+                <a href="#skills" class="nav-item" data-section="skills">
+                    <span>⚡</span> Expertise
+                </a>
+                <a href="#projects" class="nav-item" data-section="projects">
+                    <span>💼</span> My work
+                </a>
+                <a href="#experience" class="nav-item" data-section="experience">
+                    <span>💻</span> work history
+                </a>
+                <a href="#blogs" class="nav-item" data-section="blogs">
+                    <span>📝</span> Blogs
+                </a>
+                <a href="#education" class="nav-item" data-section="education">
+                    <span>🎓</span> Academics
+                </a>
+                <a href="#messages" class="nav-item" data-section="messages">
+                    <span>✉️</span> Inbox
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" id="view-portfolio-link" class="btn-secondary" target="_blank">View Portfolio</a>
+                <button id="logout-btn" class="btn-danger">Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="dashboard-section" class="content-section active">
+                <h1>Home Base</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-info">
+                            <h3 id="skills-count">0</h3>
+                            <p>Expertise</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💼</div>
+                        <div class="stat-info">
+                            <h3 id="projects-count">0</h3>
+                            <p>My work</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💻</div>
+                        <div class="stat-info">
+                            <h3 id="experience-count">0</h3>
+                            <p>work history</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-info">
+                            <h3 id="blogs-count">0</h3>
+                            <p>Blogs</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎓</div>
+                        <div class="stat-info">
+                            <h3 id="education-count">0</h3>
+                            <p>Academics</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✉️</div>
+                        <div class="stat-info">
+                            <h3 id="messages-count">0</h3>
+                            <p>Unread Inbox</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="welcome-message">
+                    <h2>Welcome to Your Portfolio CMS! 🎉</h2>
+                    <p>Manage your portfolio content easily. All changes are reflected in real-time on your portfolio.</p>
+                </div>
+            </div>
+
+            <div id="profile-section" class="content-section">
+                <h1>Manage Profile</h1>
+                <form id="profile-form" class="cms-form">
+                    <div class="form-group">
+                        <label for="profile-image-upload">Profile Image</label>
+                        <div class="image-upload">
+                            <img id="profile-image-preview" src="" alt="Profile Preview">
+                            <input type="file" id="profile-image-upload" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-resume-upload">Resume (PDF)</label>
+                        <div class="resume-upload">
+                            <input type="file" id="profile-resume-upload" accept="application/pdf">
+                            <a id="profile-resume-link" href="#" target="_blank" rel="noopener">View Current Resume</a>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profile-name">Name</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-role">Role</label>
+                            <input type="text" id="profile-role" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-bio">Bio</label>
+                        <textarea id="profile-bio" rows="4" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profile-email">Email</label>
+                            <input type="email" id="profile-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-phone">Phone</label>
+                            <input type="text" id="profile-phone" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-location">Location</label>
+                        <input type="text" id="profile-location" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profile-github">GitHub URL</label>
+                            <input type="url" id="profile-github">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-linkedin">LinkedIn URL</label>
+                            <input type="url" id="profile-linkedin">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">Save Profile</button>
+                </form>
+            </div>
+
+            <div id="skills-section" class="content-section">
+                <div class="section-header">
+                    <h1>Expertise</h1>
+                    <button class="btn-primary" id="add-skill-btn">+ Add Skill</button>
+                </div>
+                <div id="skills-list" class="items-list"></div>
+            </div>
+
+            <div id="projects-section" class="content-section">
+                <div class="section-header">
+                    <h1>My work</h1>
+                    <button class="btn-primary" id="add-project-btn">+ Add Project</button>
+                </div>
+                <div id="projects-list" class="items-list"></div>
+            </div>
+
+            <div id="experience-section" class="content-section">
+                <div class="section-header">
+                    <h1>work history</h1>
+                    <button class="btn-primary" id="add-experience-btn">+ Add Experience</button>
+                </div>
+                <div id="experience-list" class="items-list"></div>
+            </div>
+
+            <div id="blogs-section" class="content-section">
+                <div class="section-header">
+                    <h1>Manage Blogs</h1>
+                    <button class="btn-primary" id="add-blog-btn">+ Add Blog</button>
+                </div>
+                <div id="blogs-list" class="items-list"></div>
+            </div>
+
+            <div id="education-section" class="content-section">
+                <div class="section-header">
+                    <h1>Academics</h1>
+                    <button class="btn-primary" id="add-education-btn">+ Add Education</button>
+                </div>
+                <div id="education-list" class="items-list"></div>
+            </div>
+
+            <div id="messages-section" class="content-section">
+                <div class="section-header">
+                    <h1>Inbox</h1>
+                    <button class="btn-secondary" id="refresh-messages-btn">Refresh</button>
+                </div>
+                <div id="messages-list" class="items-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2 id="modal-title">Add Item</h2>
+            <form id="modal-form"></form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
