@@ -65,6 +65,12 @@
     if (!modal) return;
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-form').innerHTML = formHTML;
+    const modalForm = document.getElementById('modal-form');
+    if (modalForm) {
+      modalForm.onsubmit = (e) => {
+        e.preventDefault();
+      };
+    }
     modal.classList.add('active');
   }
 
