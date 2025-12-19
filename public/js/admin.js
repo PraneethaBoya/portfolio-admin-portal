@@ -13,12 +13,29 @@
       ...options
     });
     if (response.status === 401) {
+      showNotification('Your session has expired. Redirecting to login…', 'error');
       setTimeout(() => {
         window.location.href = 'login.html';
-      }, 600);
+      }, 1200);
       return response;
     }
     return response;
+  }
+
+  async function readJsonSafe(response) {
+    try {
+      return await response.json();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function getApiErrorMessage(response, data, fallback) {
+    if (data && typeof data.error === 'string' && data.error.trim()) return data.error;
+    if (response && typeof response.status === 'number' && response.status) {
+      return `${fallback} (HTTP ${response.status})`;
+    }
+    return fallback;
   }
 
   function formatDateTimeIST(value) {
@@ -311,39 +328,47 @@
   };
 
   window.saveSkill = async (id = null) => {
-    const skillData = {
-      name: document.getElementById('skill-name').value,
-      category: document.getElementById('skill-category').value,
-      level: Number.parseInt(document.getElementById('skill-level').value, 10)
-    };
-    const url = id ? `/api/skills/${id}` : '/api/skills';
-    const method = id ? 'PUT' : 'POST';
-    const response = await apiFetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(skillData)
-    });
-    const data = await response.json();
-    if (data.success) {
-      showNotification(`Skill ${id ? 'updated' : 'added'} — saved.`, 'success');
-      closeModal();
-      loadSkills();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t save that skill. Please try again.', 'error');
+    try {
+      const skillData = {
+        name: document.getElementById('skill-name').value,
+        category: document.getElementById('skill-category').value,
+        level: Number.parseInt(document.getElementById('skill-level').value, 10)
+      };
+      const url = id ? `/api/skills/${id}` : '/api/skills';
+      const method = id ? 'PUT' : 'POST';
+      const response = await apiFetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(skillData)
+      });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification(`Skill ${id ? 'updated' : 'added'} — saved.`, 'success');
+        closeModal();
+        loadSkills();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t save that skill. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
   window.deleteSkill = async (id) => {
     if (!confirm('Delete this skill? This can\'t be undone.')) return;
-    const response = await apiFetch(`/api/skills/${id}`, { method: 'DELETE' });
-    const data = await response.json();
-    if (data.success) {
-      showNotification('Skill deleted.', 'success');
-      loadSkills();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t delete that skill. Please try again.', 'error');
+    try {
+      const response = await apiFetch(`/api/skills/${id}`, { method: 'DELETE' });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification('Skill deleted.', 'success');
+        loadSkills();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t delete that skill. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
@@ -363,39 +388,47 @@
   };
 
   window.saveProject = async (id = null) => {
-    const formData = new FormData();
-    formData.append('title', document.getElementById('project-title').value);
-    formData.append('description', document.getElementById('project-description').value);
-    formData.append('techStack', JSON.stringify(document.getElementById('project-techstack').value.split(',').map(t => t.trim()).filter(Boolean)));
-    formData.append('date', document.getElementById('project-date').value);
-    const imageInput = document.getElementById('project-image');
-    if (imageInput && imageInput.files && imageInput.files[0]) {
-      formData.append('image', imageInput.files[0]);
-    }
-    const url = id ? `/api/projects/${id}` : '/api/projects';
-    const method = id ? 'PUT' : 'POST';
-    const response = await apiFetch(url, { method, body: formData });
-    const data = await response.json();
-    if (data.success) {
-      showNotification(`Project ${id ? 'updated' : 'added'} — saved.`, 'success');
-      closeModal();
-      loadProjects();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t save that project. Please try again.', 'error');
+    try {
+      const formData = new FormData();
+      formData.append('title', document.getElementById('project-title').value);
+      formData.append('description', document.getElementById('project-description').value);
+      formData.append('techStack', JSON.stringify(document.getElementById('project-techstack').value.split(',').map(t => t.trim()).filter(Boolean)));
+      formData.append('date', document.getElementById('project-date').value);
+      const imageInput = document.getElementById('project-image');
+      if (imageInput && imageInput.files && imageInput.files[0]) {
+        formData.append('image', imageInput.files[0]);
+      }
+      const url = id ? `/api/projects/${id}` : '/api/projects';
+      const method = id ? 'PUT' : 'POST';
+      const response = await apiFetch(url, { method, body: formData });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification(`Project ${id ? 'updated' : 'added'} — saved.`, 'success');
+        closeModal();
+        loadProjects();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t save that project. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
   window.deleteProject = async (id) => {
     if (!confirm('Delete this project? This can\'t be undone.')) return;
-    const response = await apiFetch(`/api/projects/${id}`, { method: 'DELETE' });
-    const data = await response.json();
-    if (data.success) {
-      showNotification('Project deleted.', 'success');
-      loadProjects();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t delete that project. Please try again.', 'error');
+    try {
+      const response = await apiFetch(`/api/projects/${id}`, { method: 'DELETE' });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification('Project deleted.', 'success');
+        loadProjects();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t delete that project. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
@@ -421,45 +454,53 @@
   };
 
   window.saveExperience = async (id = null) => {
-    const payload = {
-      title: document.getElementById('exp-title').value,
-      company: document.getElementById('exp-company').value,
-      location: document.getElementById('exp-location').value,
-      startDate: document.getElementById('exp-startdate').value,
-      endDate: document.getElementById('exp-enddate').value,
-      current: !!document.getElementById('exp-current').checked,
-      description: document.getElementById('exp-description').value,
-      achievements: document.getElementById('exp-achievements').value.split(',').map(x => x.trim()).filter(Boolean)
-    };
-    if (payload.current) payload.endDate = '';
-    const url = id ? `/api/experience/${id}` : '/api/experience';
-    const method = id ? 'PUT' : 'POST';
-    const response = await apiFetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...payload, achievements: JSON.stringify(payload.achievements) })
-    });
-    const data = await response.json();
-    if (data.success) {
-      showNotification(`Experience ${id ? 'updated' : 'added'} — saved.`, 'success');
-      closeModal();
-      loadExperience();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t save that experience entry. Please try again.', 'error');
+    try {
+      const payload = {
+        title: document.getElementById('exp-title').value,
+        company: document.getElementById('exp-company').value,
+        location: document.getElementById('exp-location').value,
+        startDate: document.getElementById('exp-startdate').value,
+        endDate: document.getElementById('exp-enddate').value,
+        current: !!document.getElementById('exp-current').checked,
+        description: document.getElementById('exp-description').value,
+        achievements: document.getElementById('exp-achievements').value.split(',').map(x => x.trim()).filter(Boolean)
+      };
+      if (payload.current) payload.endDate = '';
+      const url = id ? `/api/experience/${id}` : '/api/experience';
+      const method = id ? 'PUT' : 'POST';
+      const response = await apiFetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload, achievements: JSON.stringify(payload.achievements) })
+      });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification(`Experience ${id ? 'updated' : 'added'} — saved.`, 'success');
+        closeModal();
+        loadExperience();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t save that experience entry. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
   window.deleteExperience = async (id) => {
     if (!confirm('Delete this experience entry? This can\'t be undone.')) return;
-    const response = await apiFetch(`/api/experience/${id}`, { method: 'DELETE' });
-    const data = await response.json();
-    if (data.success) {
-      showNotification('Experience entry deleted.', 'success');
-      loadExperience();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t delete that experience entry. Please try again.', 'error');
+    try {
+      const response = await apiFetch(`/api/experience/${id}`, { method: 'DELETE' });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification('Experience entry deleted.', 'success');
+        loadExperience();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t delete that experience entry. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
@@ -480,39 +521,47 @@
   };
 
   window.saveBlog = async (id = null) => {
-    const formData = new FormData();
-    formData.append('title', document.getElementById('blog-title').value);
-    formData.append('excerpt', document.getElementById('blog-excerpt').value);
-    formData.append('content', document.getElementById('blog-content').value);
-    formData.append('date', document.getElementById('blog-date').value);
-    formData.append('tags', JSON.stringify(document.getElementById('blog-tags').value.split(',').map(t => t.trim()).filter(Boolean)));
-    const img = document.getElementById('blog-image');
-    if (img && img.files && img.files[0]) formData.append('image', img.files[0]);
+    try {
+      const formData = new FormData();
+      formData.append('title', document.getElementById('blog-title').value);
+      formData.append('excerpt', document.getElementById('blog-excerpt').value);
+      formData.append('content', document.getElementById('blog-content').value);
+      formData.append('date', document.getElementById('blog-date').value);
+      formData.append('tags', JSON.stringify(document.getElementById('blog-tags').value.split(',').map(t => t.trim()).filter(Boolean)));
+      const img = document.getElementById('blog-image');
+      if (img && img.files && img.files[0]) formData.append('image', img.files[0]);
 
-    const url = id ? `/api/blogs/${id}` : '/api/blogs';
-    const method = id ? 'PUT' : 'POST';
-    const response = await apiFetch(url, { method, body: formData });
-    const data = await response.json();
-    if (data.success) {
-      showNotification(`Blog ${id ? 'updated' : 'added'} — saved.`, 'success');
-      closeModal();
-      loadBlogs();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t save that blog post. Please try again.', 'error');
+      const url = id ? `/api/blogs/${id}` : '/api/blogs';
+      const method = id ? 'PUT' : 'POST';
+      const response = await apiFetch(url, { method, body: formData });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification(`Blog ${id ? 'updated' : 'added'} — saved.`, 'success');
+        closeModal();
+        loadBlogs();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t save that blog post. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
   window.deleteBlog = async (id) => {
     if (!confirm('Delete this blog post? This can\'t be undone.')) return;
-    const response = await apiFetch(`/api/blogs/${id}`, { method: 'DELETE' });
-    const data = await response.json();
-    if (data.success) {
-      showNotification('Blog post deleted.', 'success');
-      loadBlogs();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t delete that blog post. Please try again.', 'error');
+    try {
+      const response = await apiFetch(`/api/blogs/${id}`, { method: 'DELETE' });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification('Blog post deleted.', 'success');
+        loadBlogs();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t delete that blog post. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
@@ -538,43 +587,51 @@
   };
 
   window.saveEducation = async (id = null) => {
-    const payload = {
-      institution: document.getElementById('edu-institution').value,
-      degree: document.getElementById('edu-degree').value,
-      field: document.getElementById('edu-field').value,
-      location: document.getElementById('edu-location').value,
-      startDate: document.getElementById('edu-start').value,
-      endDate: document.getElementById('edu-end').value,
-      description: document.getElementById('edu-description').value
-    };
-    const url = id ? `/api/education/${id}` : '/api/education';
-    const method = id ? 'PUT' : 'POST';
-    const response = await apiFetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await response.json();
-    if (data.success) {
-      showNotification(`Education ${id ? 'updated' : 'added'} — saved.`, 'success');
-      closeModal();
-      loadEducation();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t save that education entry. Please try again.', 'error');
+    try {
+      const payload = {
+        institution: document.getElementById('edu-institution').value,
+        degree: document.getElementById('edu-degree').value,
+        field: document.getElementById('edu-field').value,
+        location: document.getElementById('edu-location').value,
+        startDate: document.getElementById('edu-start').value,
+        endDate: document.getElementById('edu-end').value,
+        description: document.getElementById('edu-description').value
+      };
+      const url = id ? `/api/education/${id}` : '/api/education';
+      const method = id ? 'PUT' : 'POST';
+      const response = await apiFetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification(`Education ${id ? 'updated' : 'added'} — saved.`, 'success');
+        closeModal();
+        loadEducation();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t save that education entry. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
   window.deleteEducation = async (id) => {
     if (!confirm('Delete this education entry? This can\'t be undone.')) return;
-    const response = await apiFetch(`/api/education/${id}`, { method: 'DELETE' });
-    const data = await response.json();
-    if (data.success) {
-      showNotification('Education entry deleted.', 'success');
-      loadEducation();
-      loadDashboardStats();
-    } else {
-      showNotification(data.error || 'Couldn\'t delete that education entry. Please try again.', 'error');
+    try {
+      const response = await apiFetch(`/api/education/${id}`, { method: 'DELETE' });
+      const data = await readJsonSafe(response);
+      if (data && data.success) {
+        showNotification('Education entry deleted.', 'success');
+        loadEducation();
+        loadDashboardStats();
+      } else {
+        showNotification(getApiErrorMessage(response, data, 'Couldn\'t delete that education entry. Please try again.'), 'error');
+      }
+    } catch (e) {
+      showNotification('Couldn\'t reach the server. Please try again.', 'error');
     }
   };
 
