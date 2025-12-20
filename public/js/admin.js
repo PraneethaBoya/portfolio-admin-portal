@@ -516,7 +516,6 @@
       <div class="form-group"><label>Content</label><textarea id="blog-content" rows="6" required>${blog.content || ''}</textarea></div>
       <div class="form-group"><label>Date</label><input type="date" id="blog-date" value="${blog.date || ''}"></div>
       <div class="form-group"><label>Tags (comma-separated)</label><input type="text" id="blog-tags" value="${(Array.isArray(blog.tags) ? blog.tags : []).join(', ')}"></div>
-      <div class="form-group"><label>Image</label><input type="file" id="blog-image" accept="image/*"></div>
       <button type="submit" class="btn-primary" onclick="window.saveBlog('${id}')">Update Blog</button>
     `);
   };
@@ -529,13 +528,12 @@
       formData.append('content', document.getElementById('blog-content').value);
       formData.append('date', document.getElementById('blog-date').value);
       formData.append('tags', JSON.stringify(document.getElementById('blog-tags').value.split(',').map(t => t.trim()).filter(Boolean)));
-      const img = document.getElementById('blog-image');
-      if (img && img.files && img.files[0]) formData.append('image', img.files[0]);
 
       const url = id ? `/api/blogs/${id}` : '/api/blogs';
       const method = id ? 'PUT' : 'POST';
       const response = await apiFetch(url, { method, body: formData });
       const data = await response.json();
+
       if (data.success) {
         showNotification(`Blog ${id ? 'updated' : 'added'} — saved.`, 'success');
         closeModal();
@@ -770,7 +768,6 @@
           <div class="form-group"><label>Content</label><textarea id="blog-content" rows="6" required></textarea></div>
           <div class="form-group"><label>Date</label><input type="date" id="blog-date"></div>
           <div class="form-group"><label>Tags (comma-separated)</label><input type="text" id="blog-tags"></div>
-          <div class="form-group"><label>Image</label><input type="file" id="blog-image" accept="image/*"></div>
           <button type="submit" class="btn-primary" onclick="window.saveBlog()">Add Blog</button>
         `);
       });
